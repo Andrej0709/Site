@@ -220,20 +220,28 @@
         </div>
       </div>
 
-<form
-  action="https://formspree.io/f/meajnpro"
-  method="POST"
->
-  <label>
-    Your email:
-    <input type="email" name="email">
-  </label>
-  <label>
-    Your message:
-    <textarea name="message"></textarea>
-  </label>
-  <!-- your other form fields go here -->
-  <button type="submit">Send</button>
+<form action="https://formspree.io/f/meajnpro" method="POST" class="contact-form reveal">
+    <div class="form-row">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required autocomplete="name">
+    </div>
+
+    <div class="form-row">
+      <label for="project">Project type</label>
+      <select id="project" name="project">
+        <option>Motion Design</option>
+        <option>Video Editing</option>
+        <option>Brand Film</option>
+        <option>Something else</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="4" required></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-pill btn-light form-submit">Send Message</button>
 </form>
     </div>
   </section>
