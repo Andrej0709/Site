@@ -77,8 +77,14 @@ Trenutno forma pravi `mailto:` link — radi bez ikakvog servera, ali otvara kor
 
 ## Dizajn sistem — na brzinu
 
-- **Boje**: skoro isključivo crno/belo (`--black`, `--white`, plus par sivih tonova) — namerno, da jedina "boja" na sajtu dolazi od samih video radova kad ih ubaciš.
+- **Boje**: baza je i dalje crno/belo (`--black`, `--white`, sivi tonovi), ali sad postoje tri signature akcentne boje inspirisane klasičnim "teal & orange" color grading-om: `--teal` (#22D3C6), `--amber` (#FF7A45) i `--violet` (#9B87F5, koristi se ređe, za varijaciju). Koriste se kao gradient na "hire me" dugmadima, ambijentalni sjaj iza tamnih sekcija, tačkica ispred svakog "timecode" naslova, i akcentna boja po kartici u Work/Services/About sekcijama — namerno suzdržano, ne kao pune boje po celoj pozadini.
+- Sve "Start a Project" / "Send Message" dugmad koriste `.btn-gradient` klasu — to je vizuelni signal kroz ceo sajt da je to akcija za kontakt/hire.
+- Sitan filmski "grain" preko cele stranice (čist CSS/SVG, bez slike, ne utiče na brzinu učitavanja).
 - **Fontovi**: Instrument Serif za naslove (tvoj "CBA" monogram stil), Inter za tekst/UI.
 - **"Timecode" oznake** (00:00:04:12 itd.) su stilizovane kao editorski workflow — nisu stvarno trajanje klipova, već dekorativni marker kroz sekcije.
 
-Sve boje, razmaci i fontovi su definisani kao CSS varijable na vrhu `styles.css` (`:root { ... }`) — menjaš na jednom mestu, reflektuje se svuda.
+Sve boje, razmaci i fontovi su definisani kao CSS varijable na vrhu `styles.css` (`:root { ... }`) — menjaš na jednom mestu, reflektuje se svuda. Ako želiš da promeniš akcentne boje, menjaš samo `--teal` / `--amber` / `--violet` na vrhu fajla.
+
+## Kontakt forma
+
+Forma sad šalje submit tiho preko `fetch()` ka Formspree endpoint-u iz `action=""` atributa (bez otvaranja mail app-a, bez napuštanja stranice) — status poruka se ispisuje ispod dugmeta. Ako ikad promeniš Formspree endpoint, samo izmeni `action=""` u `index.html`, JS ga čita automatski.

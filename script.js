@@ -129,41 +129,65 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  /* ---------- Cursor spotlight ----------
+     Service cards and work thumbnails each carry an --accent color
+     (set in CSS). On mousemove we just record the pointer position
+     as --mx / --my so the CSS radial-gradient can follow it. Skips
+     entirely on touch (no mousemove) and under reduced-motion.
+  ---------------------------------------------------------- */
+  if (!prefersReducedMotion) {
+    document.querySelectorAll('.service-card, .work-thumb').forEach((el) => {
+      el.addEventListener('mousemove', (e) => {
+        const rect = el.getBoundingClientRect();
+        el.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
+        el.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+      });
+    });
+  }
+
   /* ---------- Contact form ----------
      Zero-config default: builds a mailto: link from the form
      fields so messages land directly in your inbox with no
      backend required.
 
-     Want submissions to land quietly without opening the visitor's
-     mail app? Sign up at https://formspree.io, grab your endpoint,
-     and replace the body of this handler with a fetch() POST to
-     that endpoint instead.
+     Submissions post quietly to Formspree (the endpoint already set
+     in the form's action= attribute in index.html) via fetch, so the
+     visitor never leaves the page. Falls back to a clear message
+     pointing at the direct email address if the request fails.
   ---------------------------------------------------------- */
   const form = document.getElementById('contactForm');
   const formStatus = document.getElementById('formStatus');
 
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
 
-    const name = form.name.value.trim();
-    const project = form.project.value;
+    const email = form.email.value.trim();
     const message = form.message.value.trim();
 
-    if (!name || !message) {
-      formStatus.textContent = 'Please fill in your name and message.';
+    if (!email || !message) {
+      formStatus.textContent = 'Please fill in your email and message.';
       return;
     }
 
-    const subject = encodeURIComponent(`${project} inquiry — ${name}`);
-    const body = encodeURIComponent(
-      `${message}\n\n—\n${name}\nProject type: ${project}`
-    );
+    const submitBtn = form.querySelector('.form-submit');
+    submitBtn.disabled = true;
+    formStatus.textContent = 'Sending…';
 
-    formStatus.textContent = 'Opening your email app…';
-    window.location.href = `mailto:creativesbyandrej@gmail.com?subject=${subject}&body=${body}`;
+    try {
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: new FormData(form),
+      });
 
-    setTimeout(() => {
-      formStatus.textContent = "If nothing opened, email creativesbyandrej@gmail.com directly.";
-    }, 1200);
+      if (!res.ok) throw new Error('Request failed');
+
+      formStatus.textContent = "Thanks — I'll get back to you within a day.";
+      form.reset();
+    } catch (err) {
+      formStatus.textContent = 'Something went wrong — email me directly at creativesbyandrej@gmail.com.';
+    } finally {
+      submitBtn.disabled = false;
+    }
   });
 });
