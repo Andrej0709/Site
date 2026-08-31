@@ -1,8 +1,0 @@
-# Video files — hosted externally (Cloudflare R2 or similar), not in git.
-# See README.md, "Video hosting" section, for why and how.
-videos/*.mov
-videos/*.webm
-
-# OS junk
-.DS_Store
-Thumbs.db
