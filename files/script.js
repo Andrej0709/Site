@@ -1,8 +1,7 @@
 /* =========================================================
    ANDREJ CREATIVES — site scripts
-   No dependencies, no build step. Everything below is plain
-   JS so this can be dropped straight onto Vercel as a static
-   site.
+   No dependencies, no build step. Plain JS so this can be
+   dropped straight onto Vercel as a static site.
    ========================================================= */
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -72,14 +71,77 @@ document.addEventListener('DOMContentLoaded', () => {
     toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
   }
 
+  /* ---------- Work tabs (Motion Graphics / Short-Form) ---------- */
+  const workTabs = document.querySelectorAll('.work-tab');
+  workTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      workTabs.forEach((t) => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+
+      const targetId = tab.getAttribute('data-target');
+      document.querySelectorAll('.work-panel').forEach((panel) => {
+        panel.classList.toggle('active', panel.id === targetId);
+      });
+    });
+  });
+
+  /* ---------- Drag-to-scroll work carousels ----------
+     Lets people drag the horizontal work strips with a mouse,
+     same as scrolling on trackpad/touch. Click vs. drag is
+     disambiguated by distance moved, so cards still open on a
+     genuine click/tap.
+  ---------------------------------------------------------- */
+  document.querySelectorAll('.work-scroller').forEach((scroller) => {
+    let isDown = false;
+    let startX = 0;
+    let scrollStart = 0;
+    let moved = 0;
+
+    scroller.addEventListener('pointerdown', (e) => {
+      if (e.pointerType === 'touch') return; // native touch scroll is fine as-is
+      isDown = true;
+      moved = 0;
+      startX = e.clientX;
+      scrollStart = scroller.scrollLeft;
+      scroller.classList.add('dragging');
+    });
+
+    scroller.addEventListener('pointermove', (e) => {
+      if (!isDown) return;
+      const dx = e.clientX - startX;
+      moved = Math.abs(dx);
+      scroller.scrollLeft = scrollStart - dx;
+    });
+
+    const endDrag = () => {
+      isDown = false;
+      scroller.classList.remove('dragging');
+    };
+    scroller.addEventListener('pointerup', endDrag);
+    scroller.addEventListener('pointerleave', endDrag);
+
+    // Suppress the click that follows a real drag so cards don't
+    // accidentally open the lightbox while someone is scrolling.
+    scroller.addEventListener(
+      'click',
+      (e) => {
+        if (moved > 6) {
+          e.stopPropagation();
+          e.preventDefault();
+        }
+      },
+      true
+    );
+  });
+
   /* ---------- Video lightbox ----------
      Each .work-card carries a data-video attribute. Point it at
-     an exported MP4 (e.g. data-video="videos/visa-borderless.mp4")
-     and clicking the card will play it here.
-
-     Using a YouTube / Vimeo link instead? Swap the <video> element
-     in index.html for an <iframe>, and update openLightbox() below
-     to set iframe.src instead of video.src.
+     an exported MP4 (e.g. data-video="videos/spotify-ad.mp4") and
+     clicking the card will play it here.
   ---------------------------------------------------------- */
   const lightbox = document.getElementById('lightbox');
   const lightboxVideo = document.getElementById('lightboxVideo');
@@ -129,31 +191,34 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  /* ---------- Cursor spotlight ----------
-     Service cards and work thumbnails each carry an --accent color
-     (set in CSS). On mousemove we just record the pointer position
-     as --mx / --my so the CSS radial-gradient can follow it. Skips
-     entirely on touch (no mousemove) and under reduced-motion.
-  ---------------------------------------------------------- */
-  if (!prefersReducedMotion) {
-    document.querySelectorAll('.service-card, .work-thumb').forEach((el) => {
-      el.addEventListener('mousemove', (e) => {
-        const rect = el.getBoundingClientRect();
-        el.style.setProperty('--mx', `${((e.clientX - rect.left) / rect.width) * 100}%`);
-        el.style.setProperty('--my', `${((e.clientY - rect.top) / rect.height) * 100}%`);
+  /* ---------- FAQ accordion ---------- */
+  document.querySelectorAll('.faq-item').forEach((item) => {
+    const q = item.querySelector('.faq-q');
+    const a = item.querySelector('.faq-a');
+
+    q.addEventListener('click', () => {
+      const isOpen = item.classList.contains('open');
+
+      // close any other open item for a single-open accordion
+      document.querySelectorAll('.faq-item.open').forEach((openItem) => {
+        if (openItem !== item) {
+          openItem.classList.remove('open');
+          openItem.querySelector('.faq-q').setAttribute('aria-expanded', 'false');
+          openItem.querySelector('.faq-a').style.maxHeight = null;
+        }
       });
+
+      item.classList.toggle('open', !isOpen);
+      q.setAttribute('aria-expanded', String(!isOpen));
+      a.style.maxHeight = !isOpen ? `${a.scrollHeight}px` : null;
     });
-  }
+  });
 
   /* ---------- Contact form ----------
-     Zero-config default: builds a mailto: link from the form
-     fields so messages land directly in your inbox with no
-     backend required.
-
-     Submissions post quietly to Formspree (the endpoint already set
-     in the form's action= attribute in index.html) via fetch, so the
-     visitor never leaves the page. Falls back to a clear message
-     pointing at the direct email address if the request fails.
+     Submits quietly to Formspree (endpoint set in the form's
+     action= attribute) via fetch, so the visitor never leaves
+     the page. Falls back to a clear message pointing at the
+     direct email address if the request fails.
   ---------------------------------------------------------- */
   const form = document.getElementById('contactForm');
   const formStatus = document.getElementById('formStatus');
