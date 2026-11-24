@@ -10,7 +10,7 @@
 <meta property="og:description" content="Edits with rhythm, type that lands, and websites that load fast and read clearly.">
 <meta property="og:type" content="website">
 <meta name="google-site-verification" content="yB0l1omjCxSdZZVnWP1ORjOhgQji_WhQtECuums4Tho">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='24' fill='%230c0c0c'/%3E%3Ccircle cx='50' cy='50' r='36' fill='%23f5f5f5'/%3E%3Ctext x='50' y='59' font-family='Arial,sans-serif' font-weight='800' font-size='25' fill='%230c0c0c' text-anchor='middle'%3Ecba%3C/text%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230c0c0c'/%3E%3Cpath d='M39.6 42.6A15 15 0 1 1 39.6 21.4' fill='none' stroke='%23f5f5f5' stroke-width='8.5' stroke-linecap='round'/%3E%3Cpath d='M50 18V50' stroke='%237cc7ff' stroke-width='4' stroke-linecap='round'/%3E%3Crect x='45' y='9' width='10' height='10' rx='3' fill='%237cc7ff'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -138,13 +138,20 @@
     height: 84px; display: flex; align-items: center; padding: 0 clamp(16px, 2.2vw, 28px);
   }
   .logo { display: inline-flex; align-items: center; gap: 12px; }
-  .logo-mark {
-    display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%;
-    background: var(--text); color: var(--bg);
-    font-size: 12.5px; font-weight: 800; letter-spacing: -0.04em;
-    transition: transform 0.6s var(--ease), background-color 0.5s var(--ease), color 0.5s var(--ease);
-  }
-  .logo:hover .logo-mark { transform: rotate(-12deg) scale(1.06); }
+  /* Playhead mark: the "c" is revealed by the playhead on load and scrubbed on hover */
+  .logo-mark { display: block; width: 40px; height: 40px; flex: none; overflow: visible; color: var(--text); transition: color 0.5s var(--ease); }
+  .logo-mark .c { fill: none; stroke: currentColor; stroke-width: 9; stroke-linecap: round; }
+  .logo-mark .ph path { stroke: var(--accent); stroke-width: 3.5; stroke-linecap: round; }
+  .logo-mark .ph rect { fill: var(--accent); }
+  .logo.intro .logo-mark .c { animation: cReveal 1.3s var(--ease) 0.25s both; }
+  .logo.intro .logo-mark .ph { animation: phReveal 1.3s var(--ease) 0.25s both; }
+  .logo:not(.intro):hover .logo-mark .c { animation: cScrub 1s var(--ease); }
+  .logo:not(.intro):hover .logo-mark .ph { animation: phScrub 1s var(--ease); }
+  @keyframes cReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+  @keyframes phReveal { from { transform: translateX(-42px); opacity: 0; } 15% { opacity: 1; } to { transform: none; opacity: 1; } }
+  @keyframes cScrub { 0%, 100% { clip-path: inset(0 0 0 0); } 45% { clip-path: inset(0 100% 0 0); } }
+  @keyframes phScrub { 0%, 100% { transform: none; } 45% { transform: translateX(-42px); } }
+  .menu-logo { position: absolute; top: 18px; left: clamp(16px, 2.2vw, 28px); }
   .logo-word { font-size: 16px; font-weight: 700; letter-spacing: -0.03em; }
   .controls {
     position: fixed; z-index: 100; top: 22px; right: clamp(16px, 2.2vw, 28px);
@@ -476,6 +483,7 @@
   [data-reveal="up"].in { opacity: 1; transform: none; filter: none; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
+    .logo-mark .c, .logo-mark .ph { animation: none !important; }
     .w, [data-reveal="up"] { opacity: 1 !important; filter: none !important; transform: none !important; transition: none !important; }
     .hero-video, .avail, .latest { animation: none; }
     .pulse::after, .scroll-cue span::after { animation: none; }
@@ -518,8 +526,8 @@
 <body>
 
 <header class="top">
-  <a class="logo" href="#top" aria-label="creativesbyandrej">
-    <span class="logo-mark">cba</span>
+  <a class="logo intro" href="#top" aria-label="creativesbyandrej">
+    <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="c" d="M44 44A17 17 0 1 1 44 20"/><g class="ph"><path d="M54 17V52"/><rect x="49" y="8" width="10" height="11" rx="3"/></g></svg>
     <span class="logo-word">creativesbyandrej</span>
   </a>
 </header>
@@ -538,6 +546,9 @@
 </div>
 
 <div class="menu" id="menu" aria-hidden="true">
+  <a class="logo menu-logo" href="#top" aria-label="creativesbyandrej">
+    <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="c" d="M44 44A17 17 0 1 1 44 20"/><g class="ph"><path d="M54 17V52"/><rect x="49" y="8" width="10" height="11" rx="3"/></g></svg>
+  </a>
   <nav class="menu-links" aria-label="Menu">
     <a href="#work" style="--d:0ms"><span class="n">01</span><span class="l" data-i18n="navWork">Work</span></a>
     <a href="#web"><span class="n">02</span><span class="l" data-i18n="navWeb">Websites</span></a>
@@ -1183,7 +1194,16 @@ function setMenu(open) {
   $('#menu').setAttribute('aria-hidden', String(!open));
   $('#menuBtnLabel').textContent = open ? t('closeLabel') : t('menuLabel');
   $$('.menu-links .l').forEach((l, i) => { l.style.transitionDelay = open ? (120 + i * 55) + 'ms' : '0ms'; });
+  if (open && !reduceMotion) {
+    // replay the playhead reveal on the menu's logo each time the menu opens
+    const ml = $('.menu-logo');
+    ml.classList.remove('intro');
+    void ml.offsetWidth;
+    ml.classList.add('intro');
+    $('.ph', ml).addEventListener('animationend', () => ml.classList.remove('intro'), { once: true });
+  }
 }
+$('.menu-logo').addEventListener('click', () => setMenu(false));
 $('#menuBtn').addEventListener('click', () => setMenu(!document.body.classList.contains('menu-open')));
 $$('.menu-links a').forEach((a) => a.addEventListener('click', () => setMenu(false)));
 $('#langBtn').addEventListener('click', () => setLang(state.lang === 'en' ? 'sr' : 'en'));
@@ -1317,6 +1337,14 @@ function fitFootWord() {
 }
 addEventListener('resize', fitFootWord);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFootWord);
+
+/* ---------------- logo: drop the intro class once the reveal is done so hover can scrub ---------------- */
+for (const logo of $$('.logo.intro')) {
+  const ph = $('.ph', logo);
+  const done = () => logo.classList.remove('intro');
+  ph.addEventListener('animationend', done, { once: true });
+  setTimeout(done, 2200);
+}
 
 /* ---------------- boot ---------------- */
 $('#yearLine').textContent = '© ' + new Date().getFullYear() + ' creativesbyandrej';
