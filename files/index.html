@@ -263,6 +263,8 @@
   /* ---------- work ---------- */
   .work-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--gutter); }
   .work-head { display: flex; flex-direction: column; justify-content: space-between; gap: 32px; padding: clamp(24px, 2.6vw, 36px); min-height: 100%; }
+  /* With an even number of videos the panel runs down the left so the cards form a clean 2-wide block. */
+  .work-grid[data-even] .work-head { grid-row: span 2; }
   .work-head .top-part { display: flex; flex-direction: column; gap: 16px; }
   .work-head .bottom-part { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; }
   .count { font-size: 13px; font-weight: 600; color: var(--dim); font-variant-numeric: tabular-nums; text-align: right; line-height: 1.3; }
@@ -496,7 +498,7 @@
   }
   @media (max-width: 960px) {
     .work-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .work-head { grid-column: 1 / -1; min-height: 0; }
+    .work-head, .work-grid[data-even] .work-head { grid-column: 1 / -1; grid-row: auto; min-height: 0; }
     .web { grid-template-columns: 1fr; }
     .web-shot { order: -1; min-height: 0; aspect-ratio: 16 / 10; }
     .web-info { min-height: 0; }
@@ -794,7 +796,6 @@ const COPY = {
     footer: "Motion graphics · Editing · Websites · Belgrade / remote", backTop: "Back to top ↑",
     works: [
       { title: "Apple Music app concept", tags: "Motion · UI · Vertical", length: "0:22", video: "videos/apple-music.mp4", preview: "videos/previews/apple-music.mp4", poster: "videos/previews/apple.jpg" },
-      { title: "Claude logo reveal", tags: "Branding · Logo", length: "0:17", video: "videos/claude-ad.mp4", preview: "videos/previews/claude-ad.mp4", poster: "videos/previews/claude.jpg" },
       { title: "Microsoft logo sting", tags: "Branding · Logo", length: "0:22", video: "videos/office-ad.mp4", preview: "videos/previews/office-ad.mp4", poster: "videos/previews/office.jpg" },
       { title: "Orbital 3D mark", tags: "3D · Branding", length: "0:15", video: "videos/orbital.mp4", preview: "videos/previews/orbital.mp4", poster: "videos/previews/orbital.jpg" },
       { title: "Spotify logo sting", tags: "Branding · Logo", length: "0:15", video: "videos/spotify-ad.mp4", preview: "videos/previews/spotify-ad.mp4", poster: "videos/previews/spotify.jpg" }
@@ -803,7 +804,7 @@ const COPY = {
       { title: "Adronis", kind: "Landing page + web app", blurb: "Site for a service that sends local businesses ready-to-post ads every week. Animated landing page, swipe-to-approve demo, sign-up, checkout and a client account area — in English and Serbian.", tags: ["Web design", "Front-end", "EN / SR"], url: "https://adronis.app", domain: "adronis.app", shot: "sites/adronis.jpg" },
       { title: "Auto Servis Vlada", kind: "Business website", blurb: "Site for a car repair shop in Belgrade that specializes in Peugeot and Citroën. Animated diagnostics hero, services, live opening hours, one-tap call and Viber, and an inquiry form that turns into a ready-to-send SMS.", tags: ["Web design", "Front-end", "Local business"], url: "https://autoservisvlada.vercel.app", domain: "autoservisvlada.vercel.app", shot: "sites/autoservisvlada.jpg" }
     ],
-    tools: ["After Effects", "Premiere Pro", "DaVinci Resolve", "Photoshop", "Illustrator", "Blender", "Audition", "HTML / CSS / JS", "Supabase", "Vercel"],
+    tools: ["After Effects", "Premiere Pro", "HTML / CSS / JS", "Supabase", "Vercel"],
     steps: [
       { n: "01", title: "Brief", body: "For video: footage, references and the deadline. For a site: what it needs to do and who it's for. I confirm scope, timing and price." },
       { n: "02", title: "First draft", body: "A rough cut or a first page layout — structure, pacing and content first, so we agree on direction before any polish." },
@@ -854,7 +855,6 @@ const COPY = {
     footer: "Motion grafika · Montaža · Sajtovi · Beograd / remote", backTop: "Na vrh ↑",
     works: [
       { title: "Apple Music app concept", tags: "Motion · UI · Vertikalno", length: "0:22", video: "videos/apple-music.mp4", preview: "videos/previews/apple-music.mp4", poster: "videos/previews/apple.jpg" },
-      { title: "Claude logo reveal", tags: "Brending · Logo", length: "0:17", video: "videos/claude-ad.mp4", preview: "videos/previews/claude-ad.mp4", poster: "videos/previews/claude.jpg" },
       { title: "Microsoft logo špica", tags: "Brending · Logo", length: "0:22", video: "videos/office-ad.mp4", preview: "videos/previews/office-ad.mp4", poster: "videos/previews/office.jpg" },
       { title: "Orbital 3D znak", tags: "3D · Brending", length: "0:15", video: "videos/orbital.mp4", preview: "videos/previews/orbital.mp4", poster: "videos/previews/orbital.jpg" },
       { title: "Spotify logo špica", tags: "Brending · Logo", length: "0:15", video: "videos/spotify-ad.mp4", preview: "videos/previews/spotify-ad.mp4", poster: "videos/previews/spotify.jpg" }
@@ -863,7 +863,7 @@ const COPY = {
       { title: "Adronis", kind: "Landing stranica + web aplikacija", blurb: "Sajt za servis koji lokalnim biznisima svake nedelje šalje reklame spremne za objavu. Animirana landing stranica, demo odobravanja prevlačenjem, registracija, plaćanje i korisnički nalog — na engleskom i srpskom.", tags: ["Web dizajn", "Front-end", "EN / SR"], url: "https://adronis.app", domain: "adronis.app", shot: "sites/adronis.jpg" },
       { title: "Auto Servis Vlada", kind: "Sajt za lokalni biznis", blurb: "Sajt za auto servis u Beogradu specijalizovan za Peugeot i Citroën. Animirana dijagnostika na početnoj, usluge, radno vreme uživo, poziv i Viber jednim dodirom i forma za upit koja se pretvara u SMS spreman za slanje.", tags: ["Web dizajn", "Front-end", "Lokalni biznis"], url: "https://autoservisvlada.vercel.app", domain: "autoservisvlada.vercel.app", shot: "sites/autoservisvlada.jpg" }
     ],
-    tools: ["After Effects", "Premiere Pro", "DaVinci Resolve", "Photoshop", "Illustrator", "Blender", "Audition", "HTML / CSS / JS", "Supabase", "Vercel"],
+    tools: ["After Effects", "Premiere Pro", "HTML / CSS / JS", "Supabase", "Vercel"],
     steps: [
       { n: "01", title: "Brif", body: "Za video: materijal, reference i rok. Za sajt: šta treba da radi i kome je namenjen. Potvrđujem obim, rok i cenu." },
       { n: "02", title: "Prva verzija", body: "Grubi rez ili prvi raspored stranice — prvo struktura, tempo i sadržaj, da se dogovorimo o pravcu pre poliranja." },
@@ -944,6 +944,7 @@ function renderWork(instant) {
   $$('.card', grid).forEach((n) => n.remove());
   const works = t('works');
   $('#workCount').textContent = String(works.length).padStart(2, '0');
+  grid.toggleAttribute('data-even', works.length % 2 === 0);
   works.forEach((w, i) => {
     const b = document.createElement('button');
     b.type = 'button';
