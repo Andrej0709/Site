@@ -143,10 +143,10 @@
   .logo-mark .c { fill: none; stroke: currentColor; stroke-width: 9; stroke-linecap: round; }
   .logo-mark .ph path { stroke: var(--accent); stroke-width: 3.5; stroke-linecap: round; }
   .logo-mark .ph rect { fill: var(--accent); }
-  .logo.intro .logo-mark .c { animation: cReveal 1.3s var(--ease) 0.25s both; }
-  .logo.intro .logo-mark .ph { animation: phReveal 1.3s var(--ease) 0.25s both; }
-  .logo:not(.intro):hover .logo-mark .c { animation: cScrub 1s var(--ease); }
-  .logo:not(.intro):hover .logo-mark .ph { animation: phScrub 1s var(--ease); }
+  .logo.is-revealing .logo-mark .c { animation: cReveal 1.3s var(--ease) 0.25s both; }
+  .logo.is-revealing .logo-mark .ph { animation: phReveal 1.3s var(--ease) 0.25s both; }
+  .logo:not(.is-revealing):hover .logo-mark .c { animation: cScrub 1s var(--ease); }
+  .logo:not(.is-revealing):hover .logo-mark .ph { animation: phScrub 1s var(--ease); }
   @keyframes cReveal { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
   @keyframes phReveal { from { transform: translateX(-42px); opacity: 0; } 15% { opacity: 1; } to { transform: none; opacity: 1; } }
   @keyframes cScrub { 0%, 100% { clip-path: inset(0 0 0 0); } 45% { clip-path: inset(0 100% 0 0); } }
@@ -526,7 +526,7 @@
 <body>
 
 <header class="top">
-  <a class="logo intro" href="#top" aria-label="creativesbyandrej">
+  <a class="logo is-revealing" href="#top" aria-label="creativesbyandrej">
     <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true"><path class="c" d="M44 44A17 17 0 1 1 44 20"/><g class="ph"><path d="M54 17V52"/><rect x="49" y="8" width="10" height="11" rx="3"/></g></svg>
     <span class="logo-word">creativesbyandrej</span>
   </a>
@@ -1197,10 +1197,10 @@ function setMenu(open) {
   if (open && !reduceMotion) {
     // replay the playhead reveal on the menu's logo each time the menu opens
     const ml = $('.menu-logo');
-    ml.classList.remove('intro');
+    ml.classList.remove('is-revealing');
     void ml.offsetWidth;
-    ml.classList.add('intro');
-    $('.ph', ml).addEventListener('animationend', () => ml.classList.remove('intro'), { once: true });
+    ml.classList.add('is-revealing');
+    $('.ph', ml).addEventListener('animationend', () => ml.classList.remove('is-revealing'), { once: true });
   }
 }
 $('.menu-logo').addEventListener('click', () => setMenu(false));
@@ -1338,10 +1338,10 @@ function fitFootWord() {
 addEventListener('resize', fitFootWord);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitFootWord);
 
-/* ---------------- logo: drop the intro class once the reveal is done so hover can scrub ---------------- */
-for (const logo of $$('.logo.intro')) {
+/* ---------------- logo: drop the is-revealing class once the reveal is done so hover can scrub ---------------- */
+for (const logo of $$('.logo.is-revealing')) {
   const ph = $('.ph', logo);
-  const done = () => logo.classList.remove('intro');
+  const done = () => logo.classList.remove('is-revealing');
   ph.addEventListener('animationend', done, { once: true });
   setTimeout(done, 2200);
 }
