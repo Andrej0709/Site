@@ -1105,6 +1105,18 @@ $$('.menu-links a').forEach((a) => a.addEventListener('click', () => setMenu(fal
 $('#langBtn').addEventListener('click', () => setLang(state.lang === 'en' ? 'sr' : 'en'));
 $$('.menu-lang button').forEach((b) => b.addEventListener('click', () => setLang(b.dataset.lang)));
 
+/* ---------------- in-page links: scroll without putting #section in the address bar ---------------- */
+document.addEventListener('click', (e) => {
+  const a = e.target.closest('a[href^="#"]');
+  if (!a || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+  const target = document.getElementById(a.getAttribute('href').slice(1));
+  if (!target) return;
+  e.preventDefault();
+  if (target.id === 'top') window.scrollTo({ top: 0 });
+  else target.scrollIntoView();
+});
+if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+
 /* ---------------- lightbox ---------------- */
 const lb = $('#lightbox'), lbVideo = $('#lbVideo');
 let lastFocus = null;
