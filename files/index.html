@@ -735,7 +735,7 @@ const COPY = {
     toolsTitle: "Tools I use",
     workTitle: "Motion & editing",
     workLede: "Brand motion, logo stings and app-concept spots. Click any piece to watch it with sound.",
-    workCta: "Need an edit?", projects: "projects",
+    workCta: "Need an edit?", projects: (n) => n === 1 ? "project" : "projects",
     webTitle: "Websites",
     webLede: "From the first sketch to launch — a single landing page or a full product with sign-up, payments and more than one language.",
     visitSite: "Visit site",
@@ -779,60 +779,60 @@ const COPY = {
     ]
   },
   sr: {
-    themeLabel: "Promeni temu", langLabel: "Promeni jezik", menuLabel: "Meni", closeLabel: "Zatvori", contactBtn: "Piši mi", newTag: "Novo", latestTitle: "Apple Music app koncept", watchLabel: "Pogledaj",
+    themeLabel: "Promeni temu", langLabel: "Promeni jezik", menuLabel: "Meni", closeLabel: "Zatvori", contactBtn: "Piši mi", newTag: "Novo", latestTitle: "Apple Music koncept aplikacije", watchLabel: "Pogledaj",
     navWork: "Radovi", navWeb: "Sajtovi", navAbout: "O meni", navProcess: "Proces", navFaq: "Pitanja", navContact: "Kontakt",
     menuFoot: "Javi se",
-    availability: "Slobodan za video i web projekte",
+    availability: "Dostupan za video i web projekte",
     heroKicker: "Motion dizajn · Montaža · Sajtovi",
-    heroA: "Kadrovi koji", heroB: "pomeraju ljude,", heroC: "sajtovi koji rade.",
+    heroA: "Kadrovi koji", heroB: "pokreću ljude,", heroC: "sajtovi koji rade.",
     introTitle: "Ja sam Andrej.", introCta: "Pokreni projekat",
-    aboutTitle: "Samouk, pouzdan sa rokovima, opsednut tajmingom.",
-    aboutP1: "Počeo sam montirajući za kanale prijatelja i nastavio dok to nije postalo ono što radim svaki dan. Najveći deo mog video rada je motion grafika: kinetička tipografija, logo špice, potpisi i tranzicije koje prate numeru, a ne idu protiv nje.",
-    aboutP2: "Isti osećaj za ritam i tipografiju preneo sam na web, pa sada i dizajniram i pravim sajtove. Video, motion i sam sajt mogu da dobiješ od jedne osobe. Radim brzo, šaljem prikaze rano i primam primedbe bez ega.",
+    aboutTitle: "Samouk, uvek u roku, opsednut tajmingom.",
+    aboutP1: "Počeo sam da montiram za kanale prijatelja i nastavio dok to nije postalo ono čime se bavim svaki dan. Najveći deo mog video rada je motion grafika: kinetička tipografija, logo špice, potpisi i tranzicije koje prate muziku umesto da joj se suprotstavljaju.",
+    aboutP2: "Isti osećaj za ritam i tipografiju preneo sam na web, pa sada i dizajniram i pravim sajtove. Video, motion i sam sajt mogu da dobiješ od jedne osobe. Radim brzo, rano šaljem prve verzije i prihvatam primedbe bez sujete.",
     toolsTitle: "Alati koje koristim",
     workTitle: "Motion i montaža",
     workLede: "Brend motion, logo špice i spotovi za koncepte aplikacija. Klikni na bilo koji rad da ga pogledaš sa zvukom.",
-    workCta: "Treba ti montaža?", projects: "projekata",
+    workCta: "Treba ti montaža?", projects: (n) => (n % 10 === 1 && n % 100 !== 11) ? "projekat" : (n % 10 >= 2 && n % 10 <= 4 && (n % 100 < 12 || n % 100 > 14)) ? "projekta" : "projekata",
     webTitle: "Sajtovi",
-    webLede: "Od prve skice do objave — jedna landing stranica ili ceo proizvod sa registracijom, plaćanjem i više jezika.",
+    webLede: "Od prve skice do objave — jedna landing stranica ili ceo proizvod sa registracijom, plaćanjem i podrškom za više jezika.",
     visitSite: "Poseti sajt",
     processTitle: "Kako radim",
-    processLede: "Jednostavno, bez iznenađenja, sve dogovoreno napismeno pre nego otvorim tajmlajn ili editor koda.",
+    processLede: "Jednostavno, bez iznenađenja, sve dogovoreno napismeno pre nego što otvorim tajmlajn ili editor koda.",
     faqTitle: "Česta pitanja",
     faqLede: "Imaš još neko pitanje? Piši mi — odgovaram u toku dana.",
-    contactTitle: "Montaža ili sajt? Hajde da pričamo.",
+    contactTitle: "Montaža ili sajt? Hajde da popričamo.",
     contactLede: "Za video mi napiši format, dužinu i rok. Za sajt mi napiši šta treba da radi i kada treba da bude online. Odgovaram u toku dana, obično i brže.",
     fName: "Ime", fEmail: "Email", fProject: "O projektu", fSend: "Pošalji poruku", sending: "Šalje se…",
     sendError: "Nešto nije uspelo — piši mi direktno na creativesbyandrej@gmail.com.",
     fRequired: "Upiši ime, email i par reči o projektu.",
     fInvalidEmail: "Email adresa ne izgleda ispravno — proveri je.", fDidYouMean: "Da li si mislio na",
-    sentKicker: "Poruka poslata", sentBody: "Hvala — javljam se na email koji si ostavio. Ako je hitno, piši mi na Discord.",
+    sentKicker: "Poruka poslata", sentBody: "Hvala — javiću ti se na email koji si ostavio. Ako je hitno, piši mi na Discordu.",
     footer: "Motion grafika · Montaža · Sajtovi · Beograd / remote", backTop: "Na vrh ↑",
     works: [
-      { title: "Apple Music app concept", tags: "Motion · UI · Vertikalno", length: "0:22", video: "videos/apple-music.mp4", preview: "videos/previews/apple-music.mp4", poster: "videos/previews/apple.jpg" },
+      { title: "Apple Music koncept aplikacije", tags: "Motion · UI · Vertikalni format", length: "0:22", video: "videos/apple-music.mp4", preview: "videos/previews/apple-music.mp4", poster: "videos/previews/apple.jpg" },
       { title: "Microsoft logo špica", tags: "Brending · Logo", length: "0:22", video: "videos/office-ad.mp4", preview: "videos/previews/office-ad.mp4", poster: "videos/previews/office.jpg" },
       { title: "Orbital 3D znak", tags: "3D · Brending", length: "0:15", video: "videos/orbital.mp4", preview: "videos/previews/orbital.mp4", poster: "videos/previews/orbital.jpg" },
       { title: "Spotify logo špica", tags: "Brending · Logo", length: "0:15", video: "videos/spotify-ad.mp4", preview: "videos/previews/spotify-ad.mp4", poster: "videos/previews/spotify.jpg" }
     ],
     sites: [
-      { title: "Adronis", kind: "Landing stranica + web aplikacija", blurb: "Sajt za servis koji lokalnim biznisima svake nedelje šalje reklame spremne za objavu. Animirana landing stranica, demo odobravanja prevlačenjem, registracija, plaćanje i korisnički nalog — na engleskom i srpskom.", tags: ["Web dizajn", "Front-end", "EN / SR"], url: "https://adronis.app", domain: "adronis.app", shot: "sites/adronis.jpg" },
-      { title: "Auto Servis Vlada", kind: "Sajt za lokalni biznis", blurb: "Sajt za auto servis u Beogradu specijalizovan za Peugeot i Citroën. Animirana dijagnostika na početnoj, usluge, radno vreme uživo, poziv i Viber jednim dodirom i forma za upit koja se pretvara u SMS spreman za slanje.", tags: ["Web dizajn", "Front-end", "Lokalni biznis"], url: "https://autoservisvlada.vercel.app", domain: "autoservisvlada.vercel.app", shot: "sites/autoservisvlada.jpg" }
+      { title: "Adronis", kind: "Landing stranica + web aplikacija", blurb: "Sajt za uslugu koja lokalnim firmama svake nedelje šalje reklame spremne za objavu. Animirana landing stranica, demo odobravanja prevlačenjem, registracija, plaćanje i korisnički nalog — na engleskom i srpskom.", tags: ["Web dizajn", "Front-end", "EN / SR"], url: "https://adronis.app", domain: "adronis.app", shot: "sites/adronis.jpg" },
+      { title: "Auto Servis Vlada", kind: "Sajt za lokalni biznis", blurb: "Sajt za auto servis u Beogradu specijalizovan za Peugeot i Citroën. Animirana dijagnostika na početnoj, usluge, radno vreme koje pokazuje da li je servis trenutno otvoren, poziv i Viber jednim dodirom, kao i forma za upit koja se pretvara u SMS spreman za slanje.", tags: ["Web dizajn", "Front-end", "Lokalni biznis"], url: "https://autoservisvlada.vercel.app", domain: "autoservisvlada.vercel.app", shot: "sites/autoservisvlada.jpg" }
     ],
     tools: ["After Effects", "Premiere Pro", "HTML / CSS / JS", "Supabase", "Vercel"],
     steps: [
       { n: "01", title: "Brif", body: "Za video: materijal, reference i rok. Za sajt: šta treba da radi i kome je namenjen. Potvrđujem obim, rok i cenu." },
-      { n: "02", title: "Prva verzija", body: "Grubi rez ili prvi raspored stranice — prvo struktura, tempo i sadržaj, da se dogovorimo o pravcu pre poliranja." },
-      { n: "03", title: "Poliranje", body: "Tipografija, motion, tranzicije i kolor na videu; detalji dizajna, mobilni prikaz i brzina na sajtu. Dve runde ispravki uključene." },
-      { n: "04", title: "Predaja", body: "Video fajlovi u svim formatima — 16:9, 9:16, 1:1. Sajt ide online na tvom domenu. Projektni fajlovi na zahtev." }
+      { n: "02", title: "Prva verzija", body: "Grubi rez ili prvi raspored stranice — prvo struktura, tempo i sadržaj, da se dogovorimo o pravcu pre doterivanja." },
+      { n: "03", title: "Doterivanje", body: "Tipografija, motion, tranzicije i kolor korekcija na videu; detalji dizajna, mobilni prikaz i brzina na sajtu. Uključene su dve runde izmena." },
+      { n: "04", title: "Predaja", body: "Video fajlovi u svim formatima koji su ti potrebni — 16:9, 9:16, 1:1. Sajt ide online na tvom domenu. Izvorni fajlovi na zahtev." }
     ],
     faqs: [
-      { q: "Koliko košta projekat?", a: "Zavisi od obima. Kratke forme su pristupačne, a motion radovi i sajtovi se procenjuju po projektu. Pitaj i dobijaš fiksnu cenu unapred." },
-      { q: "Koliko brzo završavaš?", a: "Kratke video forme obično 2–3 dana, veći motion radovi oko nedelju. Za sajt zavisi od veličine — rok dobijaš zajedno sa ponudom. Hitni poslovi su mogući ako raspored dozvoli." },
-      { q: "Kako razmenjujemo fajlove?", a: "Google Drive, WeTransfer ili Frame.io — šta već koristiš. Video prikazi idu sa tajmkodom da primedbe budu jasne, a za sajt dobijaš link ka živoj verziji koju možeš da isprobaš." },
-      { q: "Koliko ispravki je uključeno?", a: "Dve pune runde, i za video i za sajtove. Manje korekcije posle toga su besplatne, a promena koncepta se posebno procenjuje." },
-      { q: "Kakve sajtove praviš?", a: "Landing stranice, portfolije i kompletne sajtove sa registracijom, plaćanjem i više jezika. Adronis i Auto Servis Vlada iznad su skorašnji primeri. Napiši mi šta sajt treba da radi i dobijaš fiksnu ponudu." },
-      { q: "Možeš li da uradiš i video i sajt?", a: "Da — tako i najbolje funkcioniše. Ista osoba montira promo i pravi stranicu na kojoj se nalazi, pa se tipografija, boje i animacije svuda poklapaju." },
-      { q: "Pišeš li scenario i biraš muziku?", a: "Mogu da predložim numere i strukturu, a radim sa licenciranom bibliotečkom muzikom. Originalna kompozicija nije u mom opsegu." }
+      { q: "Koliko košta projekat?", a: "Zavisi od obima. Kratke forme su pristupačne, a cena za motion radove i sajtove se određuje po projektu. Javi se i dobićeš fiksnu cenu unapred." },
+      { q: "Koliko brzo završavaš?", a: "Kratke video forme obično 2–3 dana, veći motion radovi oko nedelju dana. Za sajt zavisi od veličine — rok dobijaš zajedno sa ponudom. Hitni poslovi su mogući ako raspored dozvoljava." },
+      { q: "Kako razmenjujemo fajlove?", a: "Google Drive, WeTransfer ili Frame.io — šta god već koristiš. Pregledi videa idu sa tajmkodom, pa je lako ostaviti primedbe, a za sajt dobijaš link ka živoj verziji koju možeš da isprobaš." },
+      { q: "Koliko ispravki je uključeno?", a: "Dve pune runde, i za video i za sajtove. Manje korekcije posle toga su besplatne, a promena koncepta se naplaćuje posebno." },
+      { q: "Kakve sajtove praviš?", a: "Landing stranice, portfolio sajtove i kompletne sajtove sa registracijom, plaćanjem i podrškom za više jezika. Skorašnji primeri su Adronis i Auto Servis Vlada, gore na stranici. Napiši mi šta sajt treba da radi i dobićeš fiksnu ponudu." },
+      { q: "Možeš li da uradiš i video i sajt?", a: "Da — tako i najbolje funkcioniše. Ista osoba montira promo i pravi stranicu na kojoj se on prikazuje, pa se tipografija, boje i animacije svuda poklapaju." },
+      { q: "Da li pišeš scenario i biraš muziku?", a: "Mogu da predložim numere i strukturu i radim sa muzikom iz licenciranih biblioteka. Komponovanje originalne muzike ne radim." }
     ]
   }
 };
@@ -899,6 +899,7 @@ function renderWork(instant) {
   $$('.card', grid).forEach((n) => n.remove());
   const works = t('works');
   $('#workCount').textContent = String(works.length).padStart(2, '0');
+  $('#workCount').nextElementSibling.textContent = t('projects')(works.length);
   grid.toggleAttribute('data-even', works.length % 2 === 0);
   works.forEach((w, i) => {
     const b = document.createElement('button');
