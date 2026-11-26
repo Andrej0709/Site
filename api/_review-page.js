@@ -143,23 +143,6 @@ const TEMPLATE = `<!DOCTYPE html>
   }
   .player.is-vertical video { width: auto; max-width: 100%; }
 
-  .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
-  .btn {
-    display: inline-flex; align-items: center; gap: 12px;
-    height: 46px; padding: 0 8px 0 20px; border-radius: 999px;
-    background: var(--btn); color: var(--btn-text);
-    font-size: 15px; font-weight: 600; letter-spacing: -.01em; white-space: nowrap;
-    transition: transform .3s var(--ease);
-  }
-  .btn:active { transform: scale(.97); }
-  .btn .ic {
-    display: grid; place-items: center; width: 32px; height: 32px; border-radius: 50%;
-    background: var(--btn-text); color: var(--btn);
-  }
-  .btn--ghost { background: var(--panel-3); color: var(--text); }
-  .btn--ghost .ic { background: var(--text); color: var(--panel-3); }
-  .btn .sub { font-weight: 500; opacity: .6; font-variant-numeric: tabular-nums; }
-  .hint { margin: 14px 0 0; font-size: 14px; color: var(--dim); max-width: 60ch; }
 
   footer { padding: 24px 0 28px; font-size: 13px; color: var(--dim); }
   footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
@@ -168,8 +151,6 @@ const TEMPLATE = `<!DOCTYPE html>
   @media (max-width: 560px) {
     .logo-word { display: none; }
     .player { border-radius: 16px; margin: 0 calc(-1 * clamp(16px, 3vw, 40px) + 8px); }
-    .btn { flex: 1 1 100%; }
-    .btn .sub { margin-left: auto; }
   }
 </style>
 </head>
@@ -199,20 +180,9 @@ const TEMPLATE = `<!DOCTYPE html>
     </div>
 
     <div class="player{{VERTICAL}}">
-      <video id="v" src="{{VIDEO}}" poster="{{POSTER}}" controls playsinline preload="metadata" width="{{W}}" height="{{H}}"></video>
+      <video id="v" src="{{VIDEO}}" poster="{{POSTER}}" controls controlslist="nodownload" oncontextmenu="return false" playsinline preload="metadata" width="{{W}}" height="{{H}}"></video>
     </div>
 
-    <div class="actions">
-      <a class="btn" href="{{DOWNLOAD_HREF}}" download="{{DOWNLOAD_NAME}}">
-        {{T_DOWNLOAD}} <span class="sub">{{SIZE}}</span>
-        <span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2v8M3.5 6.5 7 10l3.5-3.5M2.5 12.5h9"/></svg></span>
-      </a>
-      <a class="btn btn--ghost" id="fb" href="#">
-        {{T_FEEDBACK}} <span class="sub" id="fbTime">0:00</span>
-        <span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11L11 3M5 3h6v6"/></svg></span>
-      </a>
-    </div>
-    <p class="hint">{{T_HINT}}</p>
   </div>
 </main>
 
@@ -223,31 +193,6 @@ const TEMPLATE = `<!DOCTYPE html>
   </div>
 </footer>
 
-<script>
-  (function () {
-    var v = document.getElementById('v');
-    var fb = document.getElementById('fb');
-    var fbTime = document.getElementById('fbTime');
-    var title = {{TITLE_JSON}};
-    var subject = {{FB_SUBJECT_JSON}};
-    function fmt(t) {
-      t = Math.floor(t || 0);
-      var m = Math.floor(t / 60), s = t % 60;
-      return m + ':' + (s < 10 ? '0' : '') + s;
-    }
-    function update() { fbTime.textContent = fmt(v.currentTime); }
-    v.addEventListener('timeupdate', update);
-    v.addEventListener('seeked', update);
-    fb.addEventListener('click', function (e) {
-      e.preventDefault();
-      v.pause();
-      var at = fmt(v.currentTime);
-      location.href = 'mailto:creativesbyandrej@gmail.com'
-        + '?subject=' + encodeURIComponent(subject + ': ' + title)
-        + '&body=' + encodeURIComponent('[' + at + '] \n\n' + location.href);
-    });
-  })();
-</script>
 <script>window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };</script>
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
