@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+// Git-based review links (the admin page at /admin does the same through Vercel Blob).
 // Private client review links served from the portfolio site itself.
 //
 //   node tools/review.js new "D:\path\video.mp4" --title "Spotify promo" [--client "Marko"] [--lang sr|en] [--no-encode] [--push]
@@ -8,34 +9,20 @@
 // Each link lives in files/r/<random id>/ (index.html, the video, a poster, meta.json).
 // The page is noindex and is linked from nowhere, so only people with the link find it.
 
-const fs = require('fs');
-const path = require('path');
-const crypto = require('crypto');
-const { execFileSync, spawnSync } = require('child_process');
+import fs from 'node:fs';
+import path from 'node:path';
+import crypto from 'node:crypto';
+import { fileURLToPath } from 'node:url';
+import { execFileSync, spawnSync } from 'node:child_process';
+import { renderReviewPage, fmtSize, fmtDuration } from '../api/_review-page.js';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const SITE = 'https://www.creativesbyandrej.design';
 const ROOT = path.resolve(__dirname, '..');
 const R_DIR = path.join(ROOT, 'files', 'r');
-const TEMPLATE = path.join(__dirname, 'review-template.html');
 const MAX_BYTES = 95 * 1024 * 1024; // GitHub refuses files over 100 MB
 const MAX_SIDE = 1920;
-
-const STRINGS = {
-  en: {
-    tag: 'Review copy', og: 'Private review link', length: 'Length', format: 'Format', sent: 'Sent',
-    download: 'Download', feedback: 'Feedback at', subject: 'Feedback',
-    hint: 'Pause on any moment and press "Feedback at": it opens an email with that timestamp filled in.',
-    private: 'Private link. Please don\u2019t share it publicly.', forClient: (c) => `For ${c}`, kicker: 'Video review',
-    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-  },
-  sr: {
-    tag: 'Za pregled', og: 'Privatni link za pregled', length: 'Trajanje', format: 'Format', sent: 'Poslato',
-    download: 'Preuzmi', feedback: 'Komentar na', subject: 'Komentar',
-    hint: 'Pauziraj na bilo kom trenutku i klikni \u201eKomentar na\u201c: otvoriće se mejl sa tim vremenom.',
-    private: 'Privatni link. Molim te da ga ne deliš javno.', forClient: (c) => `Za: ${c}`, kicker: 'Pregled videa',
-    months: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'avg', 'sep', 'okt', 'nov', 'dec'],
-  },
-};
 
 function die(msg) { console.error('\n  ' + msg + '\n'); process.exit(1); }
 
@@ -132,18 +119,6 @@ function newId() {
   return id;
 }
 
-function esc(s) {
-  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function jsonForScript(s) { return JSON.stringify(String(s)).replace(/</g, '\\u003c'); }
-
-function fmtDuration(sec) {
-  const t = Math.round(sec);
-  return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
-}
-function fmtSize(bytes) {
-  return bytes >= 1024 * 1024 ? (bytes / 1024 / 1024).toFixed(1) + ' MB' : Math.round(bytes / 1024) + ' KB';
-}
 
 function git(args) {
   const r = spawnSync('git', args, { cwd: ROOT, stdio: 'inherit' });
@@ -155,7 +130,6 @@ function cmdNew(opts) {
   if (!src) die('Usage: node tools/review.js new "<video file>" --title "Title" [--client "Name"] [--lang sr|en] [--no-encode] [--push]');
   if (!fs.existsSync(src)) die('File not found: ' + src);
   const lang = opts.lang === 'sr' ? 'sr' : 'en';
-  const L = STRINGS[lang];
   const title = typeof opts.title === 'string' ? opts.title : path.basename(src, path.extname(src));
   const client = typeof opts.client === 'string' ? opts.client : '';
 
@@ -193,18 +167,11 @@ function cmdNew(opts) {
   }
 
   const now = new Date();
-  const date = `${now.getDate()} ${L.months[now.getMonth()]} ${now.getFullYear()}`;
   const bytes = fs.statSync(videoPath).size;
-  const vars = {
-    LANG: lang, TITLE: esc(title), KICKER: esc(client ? L.forClient(client) : L.kicker),
-    T_OG: esc(L.og), T_TAG: esc(L.tag), T_LENGTH: esc(L.length), T_FORMAT: esc(L.format), T_SENT: esc(L.sent),
-    T_DOWNLOAD: esc(L.download), T_FEEDBACK: esc(L.feedback), T_HINT: esc(L.hint), T_PRIVATE: esc(L.private),
-    DURATION: fmtDuration(info.duration), DATE: esc(date), W: size.w, H: size.h,
-    VERTICAL: size.h > size.w ? ' is-vertical' : '',
-    VIDEO: esc(fileName), POSTER: 'poster.jpg', DOWNLOAD_NAME: esc(fileName), SIZE: fmtSize(bytes),
-    TITLE_JSON: jsonForScript(title), FB_SUBJECT_JSON: jsonForScript(L.subject),
-  };
-  const html = fs.readFileSync(TEMPLATE, 'utf8').replace(/\{\{(\w+)\}\}/g, (m, k) => (k in vars ? vars[k] : m));
+  const html = renderReviewPage({
+    title, client, lang, created: now.toISOString(), w: size.w, h: size.h, duration: info.duration, bytes,
+    video: fileName, poster: 'poster.jpg', download: fileName, fileName,
+  });
   fs.writeFileSync(path.join(dir, 'index.html'), html);
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ id, title, client, lang, created: now.toISOString(), file: fileName, bytes }, null, 2) + '\n');
 

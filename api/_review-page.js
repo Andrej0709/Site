@@ -1,4 +1,59 @@
-<!DOCTYPE html>
+// Renders a client review page. Shared by the Vercel function (api/review.js)
+// and the git-based CLI (tools/review.js).
+
+export const STRINGS = {
+  en: {
+    tag: 'Review copy', og: 'Private review link', length: 'Length', format: 'Format', sent: 'Sent',
+    download: 'Download', feedback: 'Feedback at', subject: 'Feedback',
+    hint: 'Pause on any moment and press "Feedback at": it opens an email with that timestamp filled in.',
+    private: 'Private link. Please don’t share it publicly.', forClient: (c) => 'For ' + c, kicker: 'Video review',
+    months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+  },
+  sr: {
+    tag: 'Za pregled', og: 'Privatni link za pregled', length: 'Trajanje', format: 'Format', sent: 'Poslato',
+    download: 'Preuzmi', feedback: 'Komentar na', subject: 'Komentar',
+    hint: 'Pauziraj na bilo kom trenutku i klikni „Komentar na“: otvoriće se mejl sa tim vremenom.',
+    private: 'Privatni link. Molim te da ga ne deliš javno.', forClient: (c) => 'Za: ' + c, kicker: 'Pregled videa',
+    months: ['jan', 'feb', 'mar', 'apr', 'maj', 'jun', 'jul', 'avg', 'sep', 'okt', 'nov', 'dec'],
+  },
+};
+
+export function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+const jsonForScript = (s) => JSON.stringify(String(s)).replace(/</g, '\\u003c');
+
+export function fmtDuration(sec) {
+  const t = Math.round(Number(sec) || 0);
+  return Math.floor(t / 60) + ':' + String(t % 60).padStart(2, '0');
+}
+export function fmtSize(bytes) {
+  return bytes >= 1024 * 1024 ? (bytes / 1024 / 1024).toFixed(1) + ' MB' : Math.round(bytes / 1024) + ' KB';
+}
+
+/**
+ * meta: { title, client, lang, created (ISO), w, h, duration, bytes,
+ *         video (src), poster (src), download (href), fileName }
+ */
+export function renderReviewPage(meta) {
+  const lang = meta.lang === 'sr' ? 'sr' : 'en';
+  const L = STRINGS[lang];
+  const d = new Date(meta.created || Date.now());
+  const w = Math.round(meta.w) || 1920, h = Math.round(meta.h) || 1080;
+  const vars = {
+    LANG: lang, TITLE: esc(meta.title), KICKER: esc(meta.client ? L.forClient(meta.client) : L.kicker),
+    T_OG: esc(L.og), T_TAG: esc(L.tag), T_LENGTH: esc(L.length), T_FORMAT: esc(L.format), T_SENT: esc(L.sent),
+    T_DOWNLOAD: esc(L.download), T_FEEDBACK: esc(L.feedback), T_HINT: esc(L.hint), T_PRIVATE: esc(L.private),
+    DURATION: fmtDuration(meta.duration), DATE: esc(d.getDate() + ' ' + L.months[d.getMonth()] + ' ' + d.getFullYear()),
+    W: w, H: h, VERTICAL: h > w ? ' is-vertical' : '',
+    VIDEO: esc(meta.video), POSTER: esc(meta.poster || ''), DOWNLOAD_HREF: esc(meta.download || meta.video),
+    DOWNLOAD_NAME: esc(meta.fileName || 'video.mp4'), SIZE: fmtSize(meta.bytes || 0),
+    TITLE_JSON: jsonForScript(meta.title), FB_SUBJECT_JSON: jsonForScript(L.subject),
+  };
+  return TEMPLATE.replace(/\{\{(\w+)\}\}/g, (m, k) => (k in vars ? String(vars[k]) : m));
+}
+
+const TEMPLATE = `<!DOCTYPE html>
 <html lang="{{LANG}}" data-theme="dark">
 <head>
 <meta charset="utf-8">
@@ -148,7 +203,7 @@
     </div>
 
     <div class="actions">
-      <a class="btn" href="{{VIDEO}}" download="{{DOWNLOAD_NAME}}">
+      <a class="btn" href="{{DOWNLOAD_HREF}}" download="{{DOWNLOAD_NAME}}">
         {{T_DOWNLOAD}} <span class="sub">{{SIZE}}</span>
         <span class="ic"><svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 2v8M3.5 6.5 7 10l3.5-3.5M2.5 12.5h9"/></svg></span>
       </a>
@@ -197,3 +252,4 @@
 <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
+`;

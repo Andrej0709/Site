@@ -1,0 +1,14 @@
+{
+  "name": "creativesbyandrej-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:admin": "esbuild tools/blob-client-entry.js --bundle --format=esm --minify --platform=browser --outfile=files/admin/blob-client.js"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.9.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}
