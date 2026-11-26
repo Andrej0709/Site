@@ -5,6 +5,7 @@
 import { handleUploadPresigned } from '@vercel/blob/client';
 import { issueSignedToken } from '@vercel/blob';
 import { isAdmin, json, unauthorized } from './_auth.js';
+import { SLUG } from './_slug.js';
 
 const MAX_BYTES = 2 * 1024 * 1024 * 1024; // 2 GB per file
 const TYPES = ['video/mp4', 'video/quicktime', 'video/webm', 'image/jpeg'];
@@ -29,7 +30,8 @@ export async function POST(request) {
       // Only needed to verify upload-completed webhooks, which this app doesn't use.
       webhookPublicKey: process.env.BLOB_WEBHOOK_PUBLIC_KEY || 'unused',
       getSignedToken: async (pathname) => {
-        if (!/^reviews\/[a-z0-9]{10}\/[^/]+$/.test(pathname)) throw new Error('Invalid upload path.');
+        const [top, slug, file, extra] = pathname.split('/');
+        if (top !== 'reviews' || !SLUG.test(slug || '') || !file || extra !== undefined) throw new Error('Invalid upload path.');
         const token = await issueSignedToken({
           pathname,
           operations: ['put'],

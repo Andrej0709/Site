@@ -2,6 +2,7 @@
 // Links made with the old CLI live as static files in files/r/<id>/ and are served before this.
 import { head } from '@vercel/blob';
 import { renderReviewPage } from './_review-page.js';
+import { SLUG } from './_slug.js';
 
 const HEADERS = {
   'content-type': 'text/html; charset=utf-8',
@@ -21,7 +22,7 @@ const notFound = () => new Response(
 
 export async function GET(request) {
   const id = new URL(request.url).searchParams.get('id') || '';
-  if (!/^[a-z0-9]{10}$/.test(id)) return notFound();
+  if (!SLUG.test(id)) return notFound();
   let meta;
   try {
     const blob = await head(`reviews/${id}/meta.json`);

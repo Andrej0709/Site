@@ -1,11 +1,15 @@
 // Admin API for review links stored in Vercel Blob under reviews/<id>/.
 //   GET            list all links (+ storage used)
+//   GET ?exists=   is this link name free?
 //   POST {meta}    save the page data after the browser finished uploading
 //   DELETE ?id=    remove the link and its files
 import { list, put, del, head } from '@vercel/blob';
 import { isAdmin, json, unauthorized } from './_auth.js';
+import { SLUG as ID } from './_slug.js';
 
-const ID = /^[a-z0-9]{10}$/;
+async function taken(id) {
+  try { await head(`reviews/${id}/meta.json`); return true; } catch { return false; }
+}
 const clean = (s, max) => String(s || '').replace(/[\u0000-\u001f]/g, ' ').trim().slice(0, max);
 
 async function listAll(prefix) {
@@ -21,9 +25,14 @@ async function listAll(prefix) {
 
 export async function GET(request) {
   if (!isAdmin(request)) return unauthorized();
+  const want = new URL(request.url).searchParams.get('exists');
+  if (want !== null) {
+    const valid = ID.test(want);
+    return json({ valid, exists: valid && (await taken(want)) });
+  }
   let blobs;
   try { blobs = await listAll('reviews/'); } catch (e) {
-    const missing = !process.env.BLOB_READ_WRITE_TOKEN;
+    const missing = !process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID;
     return json({ error: missing ? 'Blob storage is not connected to this project yet.' : e.message }, 500);
   }
   const used = blobs.reduce((n, b) => n + b.size, 0);
@@ -41,6 +50,7 @@ export async function POST(request) {
   let m;
   try { m = await request.json(); } catch { return json({ error: 'Bad request.' }, 400); }
   if (!ID.test(m.id || '')) return json({ error: 'Bad id.' }, 400);
+  if (await taken(m.id)) return json({ error: 'That link name is already taken.' }, 409);
 
   // Only accept files that were uploaded into this link's own folder.
   let video, poster = null;
@@ -71,7 +81,7 @@ export async function POST(request) {
     fileName: clean(m.fileName, 120) || 'video.mp4',
   };
   await put(`reviews/${m.id}/meta.json`, JSON.stringify(meta), {
-    access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: true, cacheControlMaxAge: 60,
+    access: 'public', contentType: 'application/json', addRandomSuffix: false, allowOverwrite: false, cacheControlMaxAge: 60,
   });
   return json(meta);
 }

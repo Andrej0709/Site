@@ -66,6 +66,18 @@
   input:focus, select:focus { outline: none; border-color: var(--accent); }
   .grid { display: grid; grid-template-columns: 1fr 1fr 140px; gap: 12px; margin-top: 16px; }
   .grid .title { grid-column: 1 / -1; }
+  .slug {
+    display: flex; align-items: center; height: 46px; border-radius: 12px;
+    border: 1px solid var(--line); background: var(--panel-2); overflow: hidden;
+  }
+  .slug:focus-within { border-color: var(--accent); }
+  .slug-pre { padding-left: 14px; color: var(--dim); font-size: 15px; font-weight: 500; white-space: nowrap; }
+  .slug input { border: 0; background: none; height: 100%; padding: 0 14px 0 1px; min-width: 0; flex: 1; font-weight: 600; }
+  .slug input:focus { border: 0; }
+  .slug-state { font-size: 12px; font-weight: 500; min-height: 18px; color: var(--dim); }
+  .slug-state.ok { color: var(--accent); }
+  .slug-state.bad { color: var(--danger); }
+  @media (max-width: 640px) { .slug-pre { font-size: 13px; padding-left: 12px; } }
 
   .drop {
     display: grid; place-items: center; text-align: center; gap: 6px;
@@ -174,6 +186,13 @@
         <label class="f title">Naziv
           <input type="text" id="title" maxlength="140" placeholder="npr. Spotify promo v2">
         </label>
+        <label class="f title">Link
+          <div class="slug">
+            <span class="slug-pre" id="slugPre">creativesbyandrej.design/r/</span>
+            <input type="text" id="slug" maxlength="60" placeholder="spotify-promo-v2" autocomplete="off" spellcheck="false">
+          </div>
+          <span class="slug-state" id="slugState"></span>
+        </label>
         <label class="f">Klijent (nije obavezno)
           <input type="text" id="client" maxlength="80" placeholder="Ime klijenta">
         </label>
@@ -217,13 +236,11 @@
 
   const $ = (s) => document.querySelector(s);
   const STORAGE_LIMIT = 1024 ** 3; // Vercel Blob Hobby plan: 1 GB
-  const ALPHABET = 'abcdefghijkmnpqrstuvwxyz23456789';
   let file = null, probe = null;
 
   const fmtSize = (b) => b >= 1024 ** 3 ? (b / 1024 ** 3).toFixed(2) + ' GB' : b >= 1048576 ? (b / 1048576).toFixed(1) + ' MB' : Math.round(b / 1024) + ' KB';
   const fmtDur = (s) => { s = Math.round(s || 0); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
   const linkFor = (id) => location.origin + '/r/' + id + '/';
-  const newId = () => Array.from(crypto.getRandomValues(new Uint8Array(10)), (b) => ALPHABET[b % 32]).join('');
   const slugify = (s) => s.normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'dj').toLowerCase()
     .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'video';
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
@@ -290,7 +307,7 @@
     $('#fileName').textContent = f.name;
     $('#fileInfo').textContent = fmtSize(f.size) + ' · čitam video…';
     $('#fileThumb').removeAttribute('src');
-    if (!$('#title').value) $('#title').value = f.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' ');
+    if (!$('#title').value) { $('#title').value = f.name.replace(/\.[^.]+$/, '').replace(/[_]+/g, ' '); syncSlug(); }
     probe = await probeVideo(f);
     if (file !== f) return;
     const warn = f.size > 300 * 1048576 ? ' · veliki fajl, troši mnogo od mesečnog limita' : '';
@@ -313,15 +330,59 @@
     $('#fileCard').hidden = true; $('#drop').hidden = false; $('#go').disabled = true;
   });
 
+  /* ---------- link name (slug) ---------- */
+  // Follows the title until you edit it yourself; checks that the name is free.
+  let slugEdited = false, slugTimer = 0, slugSeq = 0;
+  const cleanSlug = (s) => s.toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-').replace(/^-+|-+$/g, '').slice(0, 60).replace(/-+$/, '');
+  function setSlugState(text, cls) { const el = $('#slugState'); el.textContent = text; el.className = 'slug-state ' + cls; }
+  function checkSlug() {
+    clearTimeout(slugTimer);
+    const s = cleanSlug($('#slug').value);
+    if (!s) return setSlugState('', '');
+    setSlugState('Proveravam…', '');
+    const seq = ++slugSeq;
+    slugTimer = setTimeout(async () => {
+      try {
+        const { exists } = await api('/api/reviews?exists=' + encodeURIComponent(s));
+        if (seq !== slugSeq) return;
+        exists ? setSlugState('Zauzeto, upiši drugo ime.', 'bad') : setSlugState('✓ Slobodno: ' + linkFor(s).replace(/^https?:\/\//, ''), 'ok');
+      } catch { if (seq === slugSeq) setSlugState('', ''); }
+    }, 350);
+  }
+  function syncSlug() {
+    if (slugEdited) return;
+    const t = $('#title').value.trim();
+    $('#slug').value = t ? slugify(t) : '';
+    checkSlug();
+  }
+  $('#slugPre').textContent = location.host.replace(/^www\./, '') + '/r/';
+  $('#title').addEventListener('input', syncSlug);
+  $('#slug').addEventListener('input', (e) => {
+    const el = e.target;
+    el.value = el.value.normalize('NFKD').replace(/[̀-ͯ]/g, '').replace(/đ/gi, 'dj').toLowerCase().replace(/[^a-z0-9-]+/g, '-').replace(/-{2,}/g, '-').replace(/^-/, '');
+    slugEdited = el.value !== '';
+    checkSlug();
+  });
+  $('#slug').addEventListener('blur', (e) => { e.target.value = cleanSlug(e.target.value); });
+
   /* ---------- upload ---------- */
   $('#go').addEventListener('click', async () => {
     if (!file) return;
     const go = $('#go'), msg = $('#formMsg');
     go.disabled = true; $('#fileClear').disabled = true;
     msg.className = 'msg'; msg.textContent = '';
-    $('#progress').hidden = false; $('#done').hidden = true;
-    const id = newId();
+    $('#done').hidden = true;
     const title = $('#title').value.trim() || file.name;
+    const id = cleanSlug($('#slug').value) || slugify(title);
+    try {
+      const { exists } = await api('/api/reviews?exists=' + encodeURIComponent(id));
+      if (exists) throw new Error(`link „${id}“ je već zauzet, upiši drugi.`);
+    } catch (err) {
+      msg.className = 'msg err'; msg.textContent = 'Nije uspelo: ' + err.message;
+      go.disabled = false; $('#fileClear').disabled = false;
+      return;
+    }
+    $('#progress').hidden = false;
     const ext = (file.name.match(/\.(mp4|mov|webm)$/i) || ['', 'mp4'])[1].toLowerCase();
     const fileName = slugify(title) + '.' + ext;
     try {
@@ -356,6 +417,7 @@
       $('#openNew').href = linkFor(id);
       $('#done').hidden = false;
       $('#fileClear').click(); $('#title').value = ''; $('#client').value = '';
+      $('#slug').value = ''; slugEdited = false; setSlugState('', '');
       loadList();
     } catch (err) {
       $('#progress').hidden = true;
