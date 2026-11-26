@@ -213,7 +213,7 @@
 </main>
 
 <script type="module">
-  import { upload } from '/admin/blob-client.js';
+  import { uploadPresigned as upload } from '/admin/blob-client.js';
 
   const $ = (s) => document.querySelector(s);
   const STORAGE_LIMIT = 1024 ** 3; // Vercel Blob Hobby plan: 1 GB
@@ -359,7 +359,17 @@
       loadList();
     } catch (err) {
       $('#progress').hidden = true;
-      msg.className = 'msg err'; msg.textContent = 'Nije uspelo: ' + err.message;
+      let detail = err.message;
+      if (/presigned URL|client token/i.test(detail)) {
+        // The Blob SDK hides the server's reason; ask the route directly.
+        try {
+          const r = await fetch('/api/upload', { method: 'POST', headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({ type: 'blob.generate-presigned-url', payload: { pathname: `reviews/${id}/probe.jpg`, clientPayload: null, multipart: false } }) });
+          const d = await r.json().catch(() => ({}));
+          if (d.error) detail += ' (server: ' + d.error + ')';
+        } catch {}
+      }
+      msg.className = 'msg err'; msg.textContent = 'Nije uspelo: ' + detail;
       go.disabled = false;
     } finally {
       $('#fileClear').disabled = false; $('#barFill').style.width = '0';
