@@ -170,7 +170,7 @@ function cmdNew(opts) {
   const bytes = fs.statSync(videoPath).size;
   const html = renderReviewPage({
     title, client, lang, created: now.toISOString(), w: size.w, h: size.h, duration: info.duration, bytes,
-    video: fileName, poster: 'poster.jpg', download: fileName, fileName,
+    video: `/r/${id}/${fileName}`, poster: `/r/${id}/poster.jpg`, download: `/r/${id}/${fileName}`, fileName,
   });
   fs.writeFileSync(path.join(dir, 'index.html'), html);
   fs.writeFileSync(path.join(dir, 'meta.json'), JSON.stringify({ id, title, client, lang, created: now.toISOString(), file: fileName, bytes }, null, 2) + '\n');
