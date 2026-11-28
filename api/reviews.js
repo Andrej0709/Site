@@ -70,6 +70,8 @@ export async function POST(request) {
     title: clean(m.title, 140) || 'Video',
     client: clean(m.client, 80),
     lang: m.lang === 'sr' ? 'sr' : 'en',
+    // demo: watch only. final: the client gets a full-quality download button.
+    kind: m.kind === 'final' ? 'final' : 'demo',
     created: new Date().toISOString(),
     w: Math.round(Number(m.w)) || 1920,
     h: Math.round(Number(m.h)) || 1080,

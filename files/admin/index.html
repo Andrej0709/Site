@@ -77,6 +77,20 @@
   .slug-state { font-size: 12px; font-weight: 500; min-height: 18px; color: var(--dim); }
   .slug-state.ok { color: var(--accent); }
   .slug-state.bad { color: var(--danger); }
+  .kind { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .kind label {
+    display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; cursor: pointer; position: relative;
+    border: 1px solid var(--line); background: var(--panel-2);
+    transition: border-color .2s var(--ease), background-color .2s var(--ease);
+  }
+  .kind label:has(input:checked) { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, var(--panel-2)); }
+  .kind label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .kind input { position: absolute; opacity: 0; pointer-events: none; }
+  .kind b { color: var(--text); font-size: 15px; font-weight: 600; }
+  .kind span { color: var(--dim); font-size: 13px; font-weight: 500; }
+  .badge { display: inline-block; padding: 1px 8px; margin-right: 6px; border-radius: 999px; font-size: 11px; font-weight: 600; font-style: normal; vertical-align: 1px; background: var(--panel-3); color: var(--muted); }
+  .badge.final { background: color-mix(in srgb, var(--accent) 18%, var(--panel-3)); color: var(--accent); }
+  @media (max-width: 640px) { .kind { grid-template-columns: 1fr; } }
   @media (max-width: 640px) { .slug-pre { font-size: 13px; padding-left: 12px; } }
 
   .drop {
@@ -183,6 +197,12 @@
         </div>
       </div>
       <div class="grid">
+        <div class="f title">Tip videa
+          <div class="kind" role="radiogroup" aria-label="Tip videa">
+            <label><input type="radio" name="kind" value="demo" checked><b>Demo</b><span>Klijent samo gleda, bez preuzimanja.</span></label>
+            <label><input type="radio" name="kind" value="final"><b>Finalni video</b><span>Klijent može da preuzme u punom kvalitetu.</span></label>
+          </div>
+        </div>
         <label class="f title">Naziv
           <input type="text" id="title" maxlength="140" placeholder="npr. Spotify promo v2">
         </label>
@@ -409,6 +429,7 @@
       await api('/api/reviews', { method: 'POST', body: JSON.stringify({
         id, title, fileName,
         client: $('#client').value.trim(), lang: $('#lang').value,
+        kind: document.querySelector('input[name=kind]:checked').value,
         w: probe?.w, h: probe?.h, duration: probe?.duration,
         video: v.url, poster: posterUrl,
       }) });
@@ -418,6 +439,7 @@
       $('#done').hidden = false;
       $('#fileClear').click(); $('#title').value = ''; $('#client').value = '';
       $('#slug').value = ''; slugEdited = false; setSlugState('', '');
+      document.querySelector('input[name=kind][value=demo]').checked = true;
       loadList();
     } catch (err) {
       $('#progress').hidden = true;
@@ -458,7 +480,7 @@
           ${m.poster ? `<img src="${esc(m.poster)}" alt="" loading="lazy">` : '<img alt="">'}
           <div class="t">
             <b>${esc(m.title)}</b>
-            <span>${m.client ? esc(m.client) + ' · ' : ''}${new Date(m.created).toLocaleDateString('sr-Latn')} · ${fmtDur(m.duration)} · ${fmtSize(m.bytes)}</span>
+            <span><i class="badge${m.kind === 'final' ? ' final' : ''}">${m.kind === 'final' ? 'Finalni' : 'Demo'}</i>${m.client ? esc(m.client) + ' · ' : ''}${new Date(m.created).toLocaleDateString('sr-Latn')} · ${fmtDur(m.duration)} · ${fmtSize(m.bytes)}</span>
           </div>
           <div class="acts">
             <button class="btn btn--sm" data-act="copy">Kopiraj</button>

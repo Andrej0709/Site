@@ -3,14 +3,14 @@
 
 export const STRINGS = {
   en: {
-    tag: 'Review copy', og: 'Private review link', length: 'Length', format: 'Format', sent: 'Sent',
+    tag: 'Review copy', tagFinal: 'Final version', downloadFull: 'Download in full quality', og: 'Private review link', length: 'Length', format: 'Format', sent: 'Sent',
     download: 'Download', feedback: 'Feedback at', subject: 'Feedback',
     hint: 'Pause on any moment and press "Feedback at": it opens an email with that timestamp filled in.',
     private: 'Private link. Please don’t share it publicly.', forClient: (c) => 'For ' + c, kicker: 'Video review',
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
   },
   sr: {
-    tag: 'Za pregled', og: 'Privatni link za pregled', length: 'Trajanje', format: 'Format', sent: 'Poslato',
+    tag: 'Za pregled', tagFinal: 'Finalna verzija', downloadFull: 'Preuzmi u punom kvalitetu', og: 'Privatni link za pregled', length: 'Trajanje', format: 'Format', sent: 'Poslato',
     download: 'Preuzmi', feedback: 'Komentar na', subject: 'Komentar',
     hint: 'Pauziraj na bilo kom trenutku i klikni „Komentar na“: otvoriće se mejl sa tim vremenom.',
     private: 'Privatni link. Molim te da ga ne deliš javno.', forClient: (c) => 'Za: ' + c, kicker: 'Pregled videa',
@@ -32,17 +32,27 @@ export function fmtSize(bytes) {
 }
 
 /**
- * meta: { title, client, lang, created (ISO), w, h, duration, bytes,
- *         video (src), poster (src), download (href), fileName }
+ * meta: { title, client, lang, kind ('final' | 'demo', default demo), created (ISO),
+ *         w, h, duration, bytes, video (src), poster (src), download (href), fileName }
+ * Only 'final' links show a download button; demos keep the player locked down.
  */
 export function renderReviewPage(meta) {
   const lang = meta.lang === 'sr' ? 'sr' : 'en';
   const L = STRINGS[lang];
   const d = new Date(meta.created || Date.now());
   const w = Math.round(meta.w) || 1920, h = Math.round(meta.h) || 1080;
+  const final = meta.kind === 'final';
+  const downloadBlock = !final ? '' : `<div class="actions">
+      <a class="btn" href="${esc(meta.download || meta.video)}" download="${esc(meta.fileName || 'video.mp4')}">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19.5h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        ${esc(L.downloadFull)}
+      </a>
+      <span class="size">${esc(fmtSize(meta.bytes || 0))} · ${w}×${h}</span>
+    </div>`;
   const vars = {
-    LANG: lang, TITLE: esc(meta.title), KICKER: esc(meta.client ? L.forClient(meta.client) : L.kicker),
-    T_OG: esc(L.og), T_TAG: esc(L.tag), T_LENGTH: esc(L.length), T_FORMAT: esc(L.format), T_SENT: esc(L.sent),
+    LANG: lang, TITLE: esc(meta.title), DOWNLOAD_BLOCK: downloadBlock,
+    VIDEO_LOCK: final ? '' : ' controlslist="nodownload" oncontextmenu="return false"', KICKER: esc(meta.client ? L.forClient(meta.client) : L.kicker),
+    T_OG: esc(L.og), T_TAG: esc(final ? L.tagFinal : L.tag), T_LENGTH: esc(L.length), T_FORMAT: esc(L.format), T_SENT: esc(L.sent),
     T_DOWNLOAD: esc(L.download), T_FEEDBACK: esc(L.feedback), T_HINT: esc(L.hint), T_PRIVATE: esc(L.private),
     DURATION: fmtDuration(meta.duration), DATE: esc(d.getDate() + ' ' + L.months[d.getMonth()] + ' ' + d.getFullYear()),
     W: w, H: h, VERTICAL: h > w ? ' is-vertical' : '',
@@ -143,6 +153,16 @@ const TEMPLATE = `<!DOCTYPE html>
   }
   .player.is-vertical video { width: auto; max-width: 100%; }
 
+  .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 18px; }
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+    height: 48px; padding: 0 24px; border-radius: 999px;
+    background: var(--btn); color: var(--btn-text); font-weight: 600; letter-spacing: -.01em;
+    transition: transform .3s var(--ease);
+  }
+  .btn:active { transform: scale(.97); }
+  .size { font-size: 14px; color: var(--dim); font-variant-numeric: tabular-nums; }
+
 
   footer { padding: 24px 0 28px; font-size: 13px; color: var(--dim); }
   footer .container { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; }
@@ -180,9 +200,9 @@ const TEMPLATE = `<!DOCTYPE html>
     </div>
 
     <div class="player{{VERTICAL}}">
-      <video id="v" src="{{VIDEO}}" poster="{{POSTER}}" controls controlslist="nodownload" oncontextmenu="return false" playsinline preload="metadata" width="{{W}}" height="{{H}}"></video>
+      <video id="v" src="{{VIDEO}}" poster="{{POSTER}}" controls{{VIDEO_LOCK}} playsinline preload="metadata" width="{{W}}" height="{{H}}"></video>
     </div>
-
+    {{DOWNLOAD_BLOCK}}
   </div>
 </main>
 
